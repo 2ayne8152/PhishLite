@@ -6,7 +6,7 @@ Called by baseline.main() after cross-validation. Data discipline:
   training row is predicted once by a model that never saw it.
 - The validation and held-out test sets are never touched here.
 
-Cross-validation itself and the metric table live in baseline.py.
+Cross-validation itself and the metric table live in a_baseline.py.
 """
 from __future__ import annotations
 

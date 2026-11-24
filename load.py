@@ -1,8 +1,16 @@
-# pip install numpy pandas scikit-learn matplotlib
+"""
+load.py - data loading for PhishLite (Vrbancic et al. 2020 phishing URL dataset).
+
+Exact-duplicate rows are removed, labels are checked, then a stratified
+train / validation / test split is made. Used by a_eda.py and a_baseline.py.
+"""
+from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
+
 
 FULL_FILE = "./data/dataset_full.csv"
 RANDOM_SEED = 42
@@ -22,8 +30,6 @@ def _read_file(path: Path) -> pd.DataFrame:
 
     if suffix in {".csv", ".txt"}:
         return pd.read_csv(path)
-    if suffix == ".tsv":
-        return pd.read_csv(path, sep="\t")
     if suffix == ".parquet":
         return pd.read_parquet(path)
     if suffix in {".json", ".jsonl"}:
@@ -55,12 +61,12 @@ def normalize_labels(series: pd.Series) -> pd.Series:
 
 
 def load_dataset(
-    path: str | Path = FULL_FILE,
+    path: str | Path | None = None,
     label_col: str = DEFAULT_LABEL,
     clean: bool = True,
 ) -> pd.DataFrame:
     """Load a dataset from disk and apply light, non-destructive cleaning."""
-    path = Path(path)
+    path = Path(FULL_FILE if path is None else path)
     if not path.exists():
         raise FileNotFoundError(f"Dataset not found: {path.resolve()}")
 
@@ -102,15 +108,14 @@ def train_val_test(
 
     return X_train, X_val, X_test, y_train, y_val, y_test
 
-if __name__ == "__main__":
-    df = load_dataset()  # full, deduplicated
-    # 60/20/20
-    X_train, X_val, X_test, y_train, y_val, y_test = train_val_test(df, val_size=0.2, test_size=0.2)
+# Seeds Randomizer for both Part A and Part B
+def make_seeds(n: int = 3, master: int = RANDOM_SEED) -> list[int]:
+    """n distinct, reproducible seeds. The first is the master seed (42), so results stay comparable."""
+    extra = np.random.default_rng(master).choice(2**31 - 1, size=n - 1, replace=False).tolist()
+    print(master, extra[0], extra[1])
+    return [master] + extra
 
-    print(f"Dataset rows: {len(df):,}")
-    print(
-        f"Train: {len(X_train):,} | Validation: {len(X_val):,} "
-        f"| Test: {len(X_test):,}"
-    )
-    print("Class distribution:")
-    print(df[DEFAULT_LABEL].value_counts(normalize=True).sort_index())
+if __name__ == "__main__":
+    #df = load_dataset(FULL_FILE)
+    #print(df.info())
+    make_seeds()

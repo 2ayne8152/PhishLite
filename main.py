@@ -1,100 +1,148 @@
-"""PhishLite: entry point. Menu that runs data check, EDA and baseline stages."""
-from pathlib import Path
+"""
+main.py - unified CLI entry point for the PhishLite pipeline (Part A + Part B).
+
+Examples:
+    python main.py part_a                       # eda -> baseline
+    python main.py sentinel                     # run step 1 of Part B, then check SENTINEL_CHOICE
+    python main.py part_b                       # sentinel -> scaling -> collinearity -> reduction -> tuning -> ensemble -> eval
+    python main.py tuning --models svm mlp      # tune only selected models
+    python main.py ensemble                     # run step 10 only
+    python main.py eval                         # run steps 11-13 only
+    python main.py all --data path/to/data.csv  # full pipeline
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+import time
 import traceback
+from datetime import datetime
+from pathlib import Path
 
-from load import DEFAULT_LABEL, FULL_FILE, load_dataset, train_val_test
-import eda
-import baseline_v2 as baseline   # the file is baseline_v2.py, so import it under that name
+import load
+from a_baseline import run_baseline
+from a_eda import run_eda
+from b_ensemble import run_ensemble
+from b_evaluation import run_eval
+from b_experiments import (
+    run_collinearity,
+    run_reduction,
+    run_scaling,
+    run_sentinel,
+)
+import b_tuning
 
-EDA_DIR = Path("./reports/eda")
-BASELINE_DIR = Path("./reports/baseline")
-
-
-def print_header() -> None:
-    print("\n" + "=" * 68)
-    print("PhishLite: PHISHING DETECTION PROJECT")
-    print("=" * 68)
-    print(f"Dataset : {Path(FULL_FILE).resolve()}")
-    print(f"Target  : {DEFAULT_LABEL}")
-    print("-" * 68)
-
-
-def check_dataset() -> None:
-    """Load, deduplicate, and show how the data is split."""
-    print("\n[1] DATA LOADING AND VALIDATION")
-    df = load_dataset()
-    X_train, X_val, X_test, y_train, y_val, y_test = train_val_test(df)
-
-    print(f"Rows after deduplication : {len(df):,}")
-    print(f"Number of features       : {df.shape[1] - 1:,}")
-    print(f"Train / Val / Test rows  : {len(X_train):,} / {len(X_val):,} / {len(X_test):,}")
-    print("\nTarget distribution (0 = legitimate, 1 = phishing):")
-    print(df[DEFAULT_LABEL].value_counts().sort_index().to_string())
-    print("\nFeature values are kept as provided, including -1 placeholders.")
+PART_A_STAGES = ["eda", "baseline"]
+PART_B_STAGES = ["sentinel", "scaling", "collinearity", "reduction", "tuning", "ensemble", "eval"]
+LOG_FILE = Path("reports/run.log")
 
 
-def run_eda() -> None:
-    print("\n[2] EXPLORATORY DATA ANALYSIS")
-    eda.main()
-    print(f"\nEDA finished. Outputs are in {EDA_DIR}/")
+class _Tee:
+    """Write output to both the terminal and reports/run.log (skipping spinner carriage returns)."""
 
+    def __init__(self, stream, log_handle):
+        self._stream = stream
+        self._log = log_handle
 
-def run_baseline() -> None:
-    print("\n[3] BASELINE MODEL COMPARISON")
-    baseline.main()
-    print(f"\nBaseline finished. Results are in {BASELINE_DIR}/ (see cv_results.csv)")
+    def write(self, text: str) -> int:
+        self._stream.write(text)
+        if not text.startswith("\r"):
+            self._log.write(text)
+        return len(text)
 
+    def flush(self) -> None:
+        self._stream.flush()
+        self._log.flush()
 
-def run_full_pipeline() -> None:
-    print("\nSTARTING COMPLETE PIPELINE")
-    check_dataset()
-    run_eda()
-    run_baseline()
-    print("\nCOMPLETE PIPELINE FINISHED")
-
-
-# menu choice -> (label, function)
-ACTIONS = {
-    "1": ("Run complete pipeline (Load + EDA + Baseline)", run_full_pipeline),
-    "2": ("Load and validate dataset only", check_dataset),
-    "3": ("Run EDA only", run_eda),
-    "4": ("Run baseline models only", run_baseline),
-}
-
-
-def show_menu() -> None:
-    print("\nPlease choose an operation:")
-    for key, (label, _) in ACTIONS.items():
-        print(f"  {key}. {label}")
-    print("  5. Exit")
+    def isatty(self) -> bool:
+        return self._stream.isatty()
 
 
 def main() -> None:
-    EDA_DIR.mkdir(parents=True, exist_ok=True)
-    BASELINE_DIR.mkdir(parents=True, exist_ok=True)
+    all_stages = PART_A_STAGES + PART_B_STAGES
+    choices = [*all_stages, "part_a", "part_b", "all"]
 
-    while True:
-        print_header()
-        show_menu()
-        choice = input("\nEnter your choice (1-5): ").strip()
+    parser = argparse.ArgumentParser(description="PhishLite Part A & Part B automated pipeline")
+    parser.add_argument(
+        "stage",
+        nargs="?",
+        default="all",
+        choices=choices,
+        help="which stage or group to run (default: all)",
+    )
+    parser.add_argument(
+        "--data",
+        default=None,
+        help=f"path to dataset_full.csv (default: {load.FULL_FILE})",
+    )
+    parser.add_argument(
+        "--models",
+        nargs="*",
+        default=[],
+        help="optional model slugs for the tuning stage (e.g. --models svm mlp)",
+    )
+    args = parser.parse_args()
 
-        if choice == "5":
-            print("\nExiting. Goodbye!")
-            break
-        if choice not in ACTIONS:
-            print("\nInvalid choice. Please enter a number from 1 to 5.")
-            continue
+    if args.data:
+        load.FULL_FILE = args.data
 
+    stages = {
+        "eda": run_eda,
+        "baseline": run_baseline,
+        "sentinel": run_sentinel,
+        "scaling": run_scaling,
+        "collinearity": run_collinearity,
+        "reduction": run_reduction,
+        "tuning": lambda: b_tuning.main(args.models),
+        "ensemble": run_ensemble,
+        "eval": run_eval,
+    }
+
+    if args.stage == "all":
+        todo = all_stages
+    elif args.stage == "part_a":
+        todo = PART_A_STAGES
+    elif args.stage == "part_b":
+        todo = PART_B_STAGES
+    else:
+        todo = [args.stage]
+
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    orig_stdout, orig_stderr = sys.stdout, sys.stderr
+
+    with LOG_FILE.open("a", encoding="utf-8") as log_f:
+        sys.stdout = _Tee(orig_stdout, log_f)
+        sys.stderr = _Tee(orig_stderr, log_f)
         try:
-            ACTIONS[choice][1]()
-        except FileNotFoundError as exc:
-            print(f"\n[FILE ERROR] {exc}")
-            print("Check that the dataset exists at the path shown above.")
-        except Exception as exc:
-            print(f"\n[PIPELINE ERROR] {type(exc).__name__}: {exc}")
-            traceback.print_exc()
+            print(f"\n{'#' * 70}")
+            print(f"RUN START : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"STAGE(S)  : {', '.join(todo)}")
+            print(f"SEED      : {load.make_seeds(n=3, master=load.RANDOM_SEED)}")
+            print(f"DATASET   : {Path(load.FULL_FILE).resolve()}")
+            print(f"{'#' * 70}")
 
-        input("\nPress Enter to return to the main menu...")
+            total_start = time.time()
+            for stage in todo:
+                print(f"\n{'=' * 70}\nSTAGE: {stage}\n{'=' * 70}")
+                stage_start = time.time()
+                try:
+                    stages[stage]()
+                    print(f"\n[{stage} DONE] elapsed: {time.time() - stage_start:.1f}s")
+                except FileNotFoundError as exc:
+                    print(f"[FILE ERROR] {exc}")
+                    if stage == "eda" or args.stage not in {"all", "part_a", "part_b"}:
+                        break
+                except SystemExit as exc:
+                    print(f"[{stage} STOPPED] {exc}")
+                    break
+                except Exception as exc:
+                    print(f"[{stage} FAILED] {type(exc).__name__}: {exc}")
+                    traceback.print_exc()
+
+            print(f"\nPipeline finished in {time.time() - total_start:.1f}s. Log saved -> {LOG_FILE.resolve()}")
+        finally:
+            sys.stdout = orig_stdout
+            sys.stderr = orig_stderr
 
 
 if __name__ == "__main__":

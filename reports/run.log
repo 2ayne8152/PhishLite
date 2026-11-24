@@ -1,0 +1,1814 @@
+
+######################################################################
+RUN START : 2026-11-23 20:01:46         END: 2025-11-24 02:34:
+STAGE(S)  : eda, baseline, sentinel, scaling, collinearity, reduction, tuning, ensemble, eval
+42 191664963 1662057957
+SEED      : [42, 191664963, 1662057957]
+DATASET   : C:\Users\jinxl\Downloads\PhishLite\data\dataset_full.csv
+######################################################################
+
+======================================================================
+STAGE: eda
+======================================================================
+
+============================================================
+OVERVIEW
+============================================================
+Shape: 87,209 rows x 112 columns
+Memory: 78.14 MB
+
+Dtypes:
+int64      111
+float64      1
+
+Missing values: none
+
+Constant columns: ['qty_slash_domain', 'qty_questionmark_domain', 'qty_equal_domain', 'qty_and_domain', 'qty_exclamation_domain', 'qty_space_domain', 'qty_tilde_domain', 'qty_comma_domain', 'qty_plus_domain', 'qty_asterisk_domain', 'qty_hashtag_domain', 'qty_dollar_domain', 'qty_percent_domain']
+
+Features per group:
+url          20
+domain       21
+directory    18
+file         18
+params       20
+external     14
+
+============================================================
+CLASS BALANCE
+============================================================
+          count    pct
+phishing              
+0         56712  65.03
+1         30497  34.97
+
+============================================================
+SENTINEL VALUES (-1)
+============================================================
+66 columns contain -1. Overall phishing rate = 0.350
+                                group  count_-1  pct_-1  phishing_rate_when_-1
+qty_dollar_params              params     79846   91.56                  0.298
+qty_hashtag_params             params     79846   91.56                  0.298
+qty_underline_params           params     79846   91.56                  0.298
+qty_slash_params               params     79846   91.56                  0.298
+qty_asterisk_params            params     79846   91.56                  0.298
+qty_plus_params                params     79846   91.56                  0.298
+qty_space_params               params     79846   91.56                  0.298
+qty_exclamation_params         params     79846   91.56                  0.298
+qty_comma_params               params     79846   91.56                  0.298
+qty_tilde_params               params     79846   91.56                  0.298
+qty_at_params                  params     79846   91.56                  0.298
+qty_and_params                 params     79846   91.56                  0.298
+qty_equal_params               params     79846   91.56                  0.298
+qty_questionmark_params        params     79846   91.56                  0.298
+params_length                  params     79846   91.56                  0.298
+qty_percent_params             params     79846   91.56                  0.298
+qty_params                     params     79846   91.56                  0.298
+tld_present_params             params     79846   91.56                  0.298
+qty_dot_params                 params     79846   91.56                  0.298
+qty_hyphen_params              params     79846   91.56                  0.298
+qty_hyphen_directory        directory     46323   53.12                  0.016
+qty_dot_directory           directory     46323   53.12                  0.016
+qty_underline_directory     directory     46323   53.12                  0.016
+qty_slash_directory         directory     46323   53.12                  0.016
+qty_questionmark_directory  directory     46323   53.12                  0.016
+
+Params columns: all -1 together in 91.6% of rows, any -1 in 91.6% of rows.
+
+============================================================
+SINGLE-FEATURE SEPARATION (ROC-AUC)
+============================================================
+Top 15 features by single-feature AUC:
+directory_length             0.9399
+qty_slash_url                0.9398
+qty_slash_directory          0.9388
+qty_dot_directory            0.9191
+qty_dot_file                 0.9161
+file_length                  0.9126
+qty_hyphen_directory         0.8993
+qty_underline_directory      0.8934
+qty_equal_directory          0.8912
+qty_percent_directory        0.8906
+qty_and_directory            0.8902
+qty_tilde_directory          0.8901
+qty_at_directory             0.8900
+qty_and_file                 0.8899
+qty_exclamation_directory    0.8899
+
+No single feature above AUC 0.95.
+
+Signal per feature group:
+           n_features  mean_auc  max_auc            best_feature
+group                                                           
+url                20    0.5681   0.9398           qty_slash_url
+domain             21    0.5140   0.6711          qty_dot_domain
+directory          18    0.8978   0.9399        directory_length
+file               18    0.8922   0.9161            qty_dot_file
+params             20    0.6035   0.6039           params_length
+external           14    0.5470   0.7476  time_domain_activation
+
+============================================================
+REDUNDANT / HIGHLY CORRELATED FEATURES
+============================================================
+719 feature pairs with |Spearman| > 0.95
+qty_questionmark_file       qty_hashtag_file         1.0
+                            qty_dollar_file          1.0
+qty_slash_file              qty_dollar_file          1.0
+                            qty_hashtag_file         1.0
+qty_hashtag_directory       qty_slash_file           1.0
+                            qty_questionmark_file    1.0
+                            qty_dollar_file          1.0
+                            qty_hashtag_file         1.0
+qty_questionmark_directory  qty_questionmark_file    1.0
+qty_hashtag_file            qty_dollar_file          1.0
+qty_slash_file              qty_questionmark_file    1.0
+qty_questionmark_directory  qty_slash_file           1.0
+                            qty_hashtag_directory    1.0
+                            qty_hashtag_file         1.0
+                            qty_dollar_file          1.0
+qty_space_params            qty_hashtag_params       1.0
+qty_tilde_params            qty_hashtag_params       1.0
+qty_asterisk_params         qty_hashtag_params       1.0
+qty_space_params            qty_tilde_params         1.0
+                            qty_asterisk_params      1.0
+
+4 redundancy clusters (|r| > 0.95); keeping one feature per cluster would drop 55 columns.
+  [34] qty_dot_directory, qty_hyphen_directory, qty_underline_directory, qty_questionmark_directory, qty_equal_directory, qty_at_directory, qty_and_directory, qty_exclamation_directory ...
+  [20] qty_dot_params, qty_hyphen_params, qty_underline_params, qty_slash_params, qty_questionmark_params, qty_equal_params, qty_at_params, qty_and_params ...
+  [3] qty_slash_url, qty_slash_directory, directory_length
+  [2] qty_at_url, email_in_url
+
+============================================================
+CATEGORICAL / TEXT FEATURES
+============================================================
+None.
+
+EDA outputs saved to C:\Users\jinxl\Downloads\PhishLite\reports\eda
+
+[eda DONE] elapsed: 8.1s
+
+======================================================================
+STAGE: baseline
+======================================================================
+Train: 52,325 | Validation: 17,442 | Held-out test: 17,442 | Features: 111
+5-fold stratified CV on the training split only (validation and test splits are not used in this stage).
+
+[1/8] Logistic Regression
+  fold 1/5 | fit    1.3s | F1=0.9036 FPR=0.0604 ROC-AUC=0.9794
+  fold 2/5 | fit    2.0s | F1=0.9053 FPR=0.0560 ROC-AUC=0.9792
+  fold 3/5 | fit    1.2s | F1=0.9064 FPR=0.0547 ROC-AUC=0.9791
+  fold 4/5 | fit    1.2s | F1=0.8988 FPR=0.0616 ROC-AUC=0.9764
+  fold 5/5 | fit    1.5s | F1=0.9034 FPR=0.0611 ROC-AUC=0.9785
+  fold 1/5 | fit    2.0s | F1=0.9046 FPR=0.0561 ROC-AUC=0.9794
+  fold 2/5 | fit    1.4s | F1=0.8995 FPR=0.0567 ROC-AUC=0.9781
+  fold 3/5 | fit    1.7s | F1=0.9053 FPR=0.0617 ROC-AUC=0.9785
+  fold 4/5 | fit    1.2s | F1=0.9046 FPR=0.0585 ROC-AUC=0.9788
+  fold 5/5 | fit    2.0s | F1=0.9010 FPR=0.0583 ROC-AUC=0.9780
+  fold 1/5 | fit    2.7s | F1=0.9029 FPR=0.0586 ROC-AUC=0.9774
+  fold 2/5 | fit    1.5s | F1=0.9056 FPR=0.0576 ROC-AUC=0.9798
+  fold 3/5 | fit    1.3s | F1=0.9047 FPR=0.0578 ROC-AUC=0.9798
+  fold 4/5 | fit    1.6s | F1=0.8952 FPR=0.0623 ROC-AUC=0.9770
+  fold 5/5 | fit    1.4s | F1=0.9078 FPR=0.0557 ROC-AUC=0.9790
+  mean F1 = 0.9032 ± 0.0033
+
+[2/8] Naive Bayes
+  fold 1/5 | fit    0.1s | F1=0.7422 FPR=0.0453 ROC-AUC=0.9553
+  fold 2/5 | fit    0.2s | F1=0.7347 FPR=0.0447 ROC-AUC=0.9563
+  fold 3/5 | fit    0.2s | F1=0.7490 FPR=0.0529 ROC-AUC=0.9525
+  fold 4/5 | fit    0.2s | F1=0.7388 FPR=0.0469 ROC-AUC=0.9530
+  fold 5/5 | fit    0.3s | F1=0.7339 FPR=0.0478 ROC-AUC=0.9547
+  fold 1/5 | fit    0.1s | F1=0.7261 FPR=0.0419 ROC-AUC=0.9552
+  fold 2/5 | fit    0.1s | F1=0.7498 FPR=0.0491 ROC-AUC=0.9544
+  fold 3/5 | fit    0.1s | F1=0.7365 FPR=0.0506 ROC-AUC=0.9528
+  fold 4/5 | fit    0.1s | F1=0.7393 FPR=0.0467 ROC-AUC=0.9554
+  fold 5/5 | fit    0.1s | F1=0.7503 FPR=0.0469 ROC-AUC=0.9543
+  fold 1/5 | fit    0.1s | F1=0.7541 FPR=0.0476 ROC-AUC=0.9542
+  fold 2/5 | fit    0.1s | F1=0.7485 FPR=0.0476 ROC-AUC=0.9559
+  fold 3/5 | fit    0.1s | F1=0.7578 FPR=0.0432 ROC-AUC=0.9591
+  fold 4/5 | fit    0.1s | F1=0.7196 FPR=0.0517 ROC-AUC=0.9499
+  fold 5/5 | fit    0.1s | F1=0.7206 FPR=0.0463 ROC-AUC=0.9531
+  mean F1 = 0.7401 ± 0.0118
+
+[3/8] k-NN
+  fold 1/5 | fit    0.1s | F1=0.9297 FPR=0.0385 ROC-AUC=0.9809
+  fold 2/5 | fit    0.2s | F1=0.9283 FPR=0.0370 ROC-AUC=0.9803
+  fold 3/5 | fit    0.1s | F1=0.9293 FPR=0.0350 ROC-AUC=0.9798
+  fold 4/5 | fit    0.1s | F1=0.9211 FPR=0.0406 ROC-AUC=0.9769
+  fold 5/5 | fit    0.1s | F1=0.9223 FPR=0.0403 ROC-AUC=0.9787
+  fold 1/5 | fit    0.3s | F1=0.9283 FPR=0.0367 ROC-AUC=0.9785
+  fold 2/5 | fit    0.1s | F1=0.9255 FPR=0.0395 ROC-AUC=0.9790
+  fold 3/5 | fit    0.2s | F1=0.9316 FPR=0.0379 ROC-AUC=0.9825
+  fold 4/5 | fit    0.2s | F1=0.9279 FPR=0.0372 ROC-AUC=0.9819
+  fold 5/5 | fit    0.1s | F1=0.9206 FPR=0.0392 ROC-AUC=0.9762
+  fold 1/5 | fit    0.3s | F1=0.9276 FPR=0.0391 ROC-AUC=0.9779
+  fold 2/5 | fit    0.2s | F1=0.9303 FPR=0.0378 ROC-AUC=0.9796
+  fold 3/5 | fit    0.2s | F1=0.9287 FPR=0.0373 ROC-AUC=0.9796
+  fold 4/5 | fit    0.2s | F1=0.9206 FPR=0.0406 ROC-AUC=0.9791
+  fold 5/5 | fit    0.3s | F1=0.9338 FPR=0.0326 ROC-AUC=0.9816
+  mean F1 = 0.9270 ± 0.0041
+
+[4/8] SVM
+  fold 1/5 | fit   50.6s | F1=0.9198 FPR=0.0500 ROC-AUC=0.9844
+  fold 2/5 | fit   62.8s | F1=0.9183 FPR=0.0489 ROC-AUC=0.9847
+  fold 3/5 | fit   22.8s | F1=0.9179 FPR=0.0492 ROC-AUC=0.9844
+  fold 4/5 | fit   22.8s | F1=0.9112 FPR=0.0529 ROC-AUC=0.9807
+  fold 5/5 | fit   22.7s | F1=0.9166 FPR=0.0530 ROC-AUC=0.9838
+  fold 1/5 | fit   22.9s | F1=0.9160 FPR=0.0489 ROC-AUC=0.9848
+  fold 2/5 | fit   23.5s | F1=0.9189 FPR=0.0492 ROC-AUC=0.9832
+  fold 3/5 | fit   22.7s | F1=0.9213 FPR=0.0510 ROC-AUC=0.9840
+  fold 4/5 | fit   23.4s | F1=0.9195 FPR=0.0510 ROC-AUC=0.9842
+  fold 5/5 | fit   23.2s | F1=0.9103 FPR=0.0532 ROC-AUC=0.9822
+  fold 1/5 | fit   24.4s | F1=0.9154 FPR=0.0517 ROC-AUC=0.9829
+  fold 2/5 | fit   24.8s | F1=0.9199 FPR=0.0486 ROC-AUC=0.9840
+  fold 3/5 | fit   24.0s | F1=0.9201 FPR=0.0482 ROC-AUC=0.9844
+  fold 4/5 | fit   23.8s | F1=0.9080 FPR=0.0572 ROC-AUC=0.9823
+  fold 5/5 | fit   23.6s | F1=0.9210 FPR=0.0473 ROC-AUC=0.9844
+  mean F1 = 0.9169 ± 0.0041
+
+[5/8] Random Forest
+  fold 1/5 | fit    0.3s | F1=0.9550 FPR=0.0275 ROC-AUC=0.9941
+  fold 2/5 | fit    0.3s | F1=0.9542 FPR=0.0247 ROC-AUC=0.9937
+  fold 3/5 | fit    0.3s | F1=0.9542 FPR=0.0259 ROC-AUC=0.9946
+  fold 4/5 | fit    0.4s | F1=0.9484 FPR=0.0301 ROC-AUC=0.9930
+  fold 5/5 | fit    0.4s | F1=0.9532 FPR=0.0272 ROC-AUC=0.9940
+  fold 1/5 | fit    0.3s | F1=0.9524 FPR=0.0264 ROC-AUC=0.9935
+  fold 2/5 | fit    0.3s | F1=0.9513 FPR=0.0289 ROC-AUC=0.9927
+  fold 3/5 | fit    0.3s | F1=0.9552 FPR=0.0273 ROC-AUC=0.9947
+  fold 4/5 | fit    0.3s | F1=0.9573 FPR=0.0256 ROC-AUC=0.9948
+  fold 5/5 | fit    0.3s | F1=0.9482 FPR=0.0287 ROC-AUC=0.9931
+  fold 1/5 | fit    0.3s | F1=0.9541 FPR=0.0269 ROC-AUC=0.9936
+  fold 2/5 | fit    0.4s | F1=0.9559 FPR=0.0264 ROC-AUC=0.9945
+  fold 3/5 | fit    0.4s | F1=0.9531 FPR=0.0266 ROC-AUC=0.9942
+  fold 4/5 | fit    0.4s | F1=0.9466 FPR=0.0304 ROC-AUC=0.9934
+  fold 5/5 | fit    0.4s | F1=0.9536 FPR=0.0275 ROC-AUC=0.9943
+  mean F1 = 0.9529 ± 0.0030
+
+[6/8] LightGBM
+  fold 1/5 | fit    0.2s | F1=0.9518 FPR=0.0278 ROC-AUC=0.9944
+  fold 2/5 | fit    0.3s | F1=0.9518 FPR=0.0251 ROC-AUC=0.9941
+  fold 3/5 | fit    0.3s | F1=0.9514 FPR=0.0266 ROC-AUC=0.9941
+  fold 4/5 | fit    0.2s | F1=0.9450 FPR=0.0316 ROC-AUC=0.9928
+  fold 5/5 | fit    0.3s | F1=0.9476 FPR=0.0291 ROC-AUC=0.9937
+  fold 1/5 | fit    0.2s | F1=0.9495 FPR=0.0248 ROC-AUC=0.9934
+  fold 2/5 | fit    0.3s | F1=0.9496 FPR=0.0278 ROC-AUC=0.9929
+  fold 3/5 | fit    0.2s | F1=0.9525 FPR=0.0273 ROC-AUC=0.9942
+  fold 4/5 | fit    0.3s | F1=0.9533 FPR=0.0266 ROC-AUC=0.9948
+  fold 5/5 | fit    0.3s | F1=0.9448 FPR=0.0309 ROC-AUC=0.9932
+  fold 1/5 | fit    0.2s | F1=0.9531 FPR=0.0263 ROC-AUC=0.9934
+  fold 2/5 | fit    0.3s | F1=0.9518 FPR=0.0276 ROC-AUC=0.9939
+  fold 3/5 | fit    0.3s | F1=0.9522 FPR=0.0275 ROC-AUC=0.9939
+  fold 4/5 | fit    0.3s | F1=0.9470 FPR=0.0284 ROC-AUC=0.9939
+  fold 5/5 | fit    0.3s | F1=0.9488 FPR=0.0260 ROC-AUC=0.9940
+  mean F1 = 0.9500 ± 0.0028
+
+[7/8] TabNet
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 1/5 | fit   76.6s | F1=0.9375 FPR=0.0407 ROC-AUC=0.9905
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 2/5 | fit   74.8s | F1=0.9002 FPR=0.0688 ROC-AUC=0.9822
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 3/5 | fit   75.9s | F1=0.9394 FPR=0.0281 ROC-AUC=0.9903
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 4/5 | fit   75.2s | F1=0.9312 FPR=0.0326 ROC-AUC=0.9871
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 5/5 | fit   75.7s | F1=0.9316 FPR=0.0442 ROC-AUC=0.9894
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 1/5 | fit   82.3s | F1=0.9311 FPR=0.0457 ROC-AUC=0.9886
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 2/5 | fit   83.9s | F1=0.9265 FPR=0.0364 ROC-AUC=0.9887
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 3/5 | fit   76.3s | F1=0.9390 FPR=0.0363 ROC-AUC=0.9898
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 4/5 | fit   76.1s | F1=0.9373 FPR=0.0322 ROC-AUC=0.9909
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 5/5 | fit   75.8s | F1=0.9177 FPR=0.0400 ROC-AUC=0.9862
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 1/5 | fit   75.3s | F1=0.9309 FPR=0.0504 ROC-AUC=0.9883
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 2/5 | fit   75.9s | F1=0.9338 FPR=0.0454 ROC-AUC=0.9896
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 3/5 | fit   74.6s | F1=0.9332 FPR=0.0345 ROC-AUC=0.9895
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 4/5 | fit   74.7s | F1=0.9292 FPR=0.0319 ROC-AUC=0.9889
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\abstract_model.py:687: UserWarning: No early stopping will be performed, last training weights will be used.
+  warnings.warn(wrn_msg)
+  fold 5/5 | fit   87.7s | F1=0.9406 FPR=0.0353 ROC-AUC=0.9907
+  mean F1 = 0.9306 ± 0.0102
+
+[8/8] MLP
+  fold 1/5 | fit   41.2s | F1=0.9429 FPR=0.0375 ROC-AUC=0.9922
+  fold 2/5 | fit   42.7s | F1=0.9424 FPR=0.0339 ROC-AUC=0.9903
+  fold 3/5 | fit   40.4s | F1=0.9398 FPR=0.0287 ROC-AUC=0.9895
+  fold 4/5 | fit   49.1s | F1=0.9322 FPR=0.0284 ROC-AUC=0.9864
+  fold 5/5 | fit  844.4s | F1=0.9365 FPR=0.0341 ROC-AUC=0.9887
+  fold 1/5 | fit  577.8s | F1=0.9380 FPR=0.0295 ROC-AUC=0.9884
+  fold 2/5 | fit   31.2s | F1=0.9386 FPR=0.0313 ROC-AUC=0.9904
+  fold 3/5 | fit   56.3s | F1=0.9402 FPR=0.0284 ROC-AUC=0.9893
+  fold 4/5 | fit   44.7s | F1=0.9401 FPR=0.0292 ROC-AUC=0.9901
+  fold 5/5 | fit   36.2s | F1=0.9359 FPR=0.0332 ROC-AUC=0.9888
+  fold 1/5 | fit   45.2s | F1=0.9363 FPR=0.0313 ROC-AUC=0.9898
+  fold 2/5 | fit   41.1s | F1=0.9428 FPR=0.0313 ROC-AUC=0.9914
+  fold 3/5 | fit   46.0s | F1=0.9382 FPR=0.0329 ROC-AUC=0.9899
+  fold 4/5 | fit   35.7s | F1=0.9392 FPR=0.0328 ROC-AUC=0.9906
+  fold 5/5 | fit   43.2s | F1=0.9375 FPR=0.0303 ROC-AUC=0.9900
+  mean F1 = 0.9387 ± 0.0029
+
+======================================================================
+BASELINE CV RESULTS (saved to C:\Users\jinxl\Downloads\PhishLite\reports\baseline)
+======================================================================
+              Model        Accuracy       Precision          Recall              F1             FPR         ROC_AUC             MCC          PR_AUC  Mean_Fold_Time_Sec
+      Random Forest 0.9669 ± 0.0021 0.9495 ± 0.0029 0.9562 ± 0.0039 0.9529 ± 0.0030 0.0273 ± 0.0016 0.9939 ± 0.0006 0.9274 ± 0.0047 0.9893 ± 0.0011                0.35
+           LightGBM 0.9650 ± 0.0020 0.9489 ± 0.0033 0.9511 ± 0.0038 0.9500 ± 0.0028 0.0276 ± 0.0019 0.9938 ± 0.0006 0.9231 ± 0.0043 0.9891 ± 0.0011                0.26
+                MLP 0.9572 ± 0.0018 0.9411 ± 0.0042 0.9363 ± 0.0079 0.9387 ± 0.0029 0.0315 ± 0.0026 0.9897 ± 0.0013 0.9059 ± 0.0042 0.9819 ± 0.0023              131.67
+             TabNet 0.9512 ± 0.0075 0.9263 ± 0.0167 0.9352 ± 0.0131 0.9306 ± 0.0102 0.0402 ± 0.0101 0.9887 ± 0.0022 0.8932 ± 0.0160 0.9795 ± 0.0033               77.39
+               k-NN 0.9491 ± 0.0028 0.9291 ± 0.0040 0.9250 ± 0.0054 0.9270 ± 0.0041 0.0380 ± 0.0022 0.9795 ± 0.0018 0.8880 ± 0.0063 0.9574 ± 0.0032                0.19
+                SVM 0.9413 ± 0.0029 0.9076 ± 0.0045 0.9264 ± 0.0049 0.9169 ± 0.0041 0.0507 ± 0.0026 0.9836 ± 0.0011 0.8717 ± 0.0063 0.9707 ± 0.0021               27.86
+Logistic Regression 0.9316 ± 0.0023 0.8936 ± 0.0040 0.9131 ± 0.0050 0.9032 ± 0.0033 0.0585 ± 0.0024 0.9786 ± 0.0010 0.8505 ± 0.0051 0.9596 ± 0.0022                1.60
+        Naive Bayes 0.8431 ± 0.0057 0.8791 ± 0.0067 0.6392 ± 0.0164 0.7401 ± 0.0118 0.0473 ± 0.0030 0.9544 ± 0.0021 0.6483 ± 0.0131 0.8844 ± 0.0055                0.14
+
+ERROR COUNTS (out-of-fold, training split)
+              Model    TN   FP   FN    TP    FPR    FNR
+      Random Forest 33106  921  804 17494 0.0271 0.0439
+           LightGBM 33073  954  896 17402 0.0280 0.0490
+                MLP 32921 1106 1133 17165 0.0325 0.0619
+               k-NN 32725 1302 1394 16904 0.0383 0.0762
+             TabNet 32568 1459 1200 17098 0.0429 0.0656
+        Naive Bayes 32411 1616 6608 11690 0.0475 0.3611
+                SVM 32298 1729 1349 16949 0.0508 0.0737
+Logistic Regression 32028 1999 1574 16724 0.0587 0.0860
+
+MISCLASSIFICATION PROFILE: Random Forest
+  FP_vs_TN: 921 error rows vs 33106 reference rows
+qty_plus_file                 1.636
+qty_slash_file                1.630
+qty_questionmark_file         1.630
+qty_dollar_file               1.630
+qty_hashtag_file              1.630
+qty_hashtag_directory         1.630
+qty_questionmark_directory    1.630
+qty_comma_file                1.629
+qty_at_file                   1.629
+qty_comma_directory           1.627
+  FN_vs_TP: 804 error rows vs 17494 reference rows
+qty_slash_url         -1.217
+qty_slash_directory   -1.166
+directory_length      -1.003
+length_url            -0.950
+qty_dot_file          -0.947
+qty_dot_directory     -0.941
+qty_hashtag_params    -0.771
+qty_tilde_params      -0.770
+qty_asterisk_params   -0.770
+qty_space_params      -0.769
+
+INFLUENCING FACTORS: Random Forest, F1 drop when the feature is shuffled (top 10)
+time_domain_activation    0.0631
+directory_length          0.0119
+qty_dot_domain            0.0097
+ttl_hostname              0.0073
+asn_ip                    0.0057
+time_domain_expiration    0.0051
+qty_dot_url               0.0050
+time_response             0.0045
+length_url                0.0045
+qty_mx_servers            0.0041
+
+INFLUENCING FACTORS: Logistic Regression, standardised coefficient (top 10 by size)
+params_length                1.808
+length_url                   1.425
+time_domain_activation      -1.386
+qty_at_url                   1.213
+qty_equal_directory          1.094
+qty_tilde_file              -1.046
+qty_params                  -0.914
+qty_dot_directory            0.815
+qty_equal_params            -0.760
+qty_exclamation_directory    0.730
+
+Note: correlated features share the credit, so one of a near-identical group can look weak.
+1. params columns checked: 20; all have -1 on exactly the same rows as params_length
+   rows with params_length == -1: 91.7%
+
+2. Row shares: params_length vs '?' in the whole URL (expect two big cells on the diagonal)
+qty_questionmark_url  '?' in URL  no '?' in URL
+params_length                                  
+params_length != -1        0.091          0.909
+params_length == -1        0.000          1.000
+
+3. length_url: min = 4, median = 22.0, rows <= 0: 0
+
+4. time_domain_activation == -1 in 26.5% of rows. Other columns that are also -1:
+                        share -1 when activation is -1  share -1 overall
+time_domain_expiration                           0.988             0.287
+time_response                                    0.077             0.050
+qty_ip_resolved                                  0.067             0.035
+asn_ip                                           0.080             0.058
+qty_nameservers                                  0.000             0.000
+qty_mx_servers                                   0.000             0.000
+ttl_hostname                                     0.067             0.035
+
+ROBUSTNESS BY CONDITION (out-of-fold F1)
+                                                                  Logistic Regression  Naive Bayes   k-NN    SVM  Random Forest  LightGBM  TabNet    MLP
+URL has no query params (n=47,970, 30% phishing)                                0.882        0.667  0.911  0.898          0.943     0.939   0.913  0.926
+URL has query params (n=4,355, 91% phishing)                                    0.982        0.948  0.980  0.985          0.989     0.988   0.982  0.985
+short URL (below median length) (n=24,720, 8% phishing)                         0.709        0.059  0.741  0.736          0.841     0.837   0.753  0.798
+long URL (median length or more) (n=27,605, 59% phishing)                       0.927        0.790  0.949  0.939          0.966     0.963   0.950  0.956
+domain activation time unavailable (-1) (n=13,890, 46% phishing)                0.879        0.709  0.927  0.895          0.947     0.942   0.912  0.931
+
+ROBUSTNESS BY CONDITION (out-of-fold FPR)
+                                                                  Logistic Regression  Naive Bayes   k-NN    SVM  Random Forest  LightGBM  TabNet    MLP
+URL has no query params (n=47,970, 30% phishing)                                0.056        0.038  0.036  0.049          0.025     0.026   0.041  0.031
+URL has query params (n=4,355, 91% phishing)                                    0.255        0.871  0.243  0.225          0.200     0.161   0.171  0.141
+short URL (below median length) (n=24,720, 8% phishing)                         0.024        0.003  0.021  0.022          0.008     0.009   0.024  0.016
+long URL (median length or more) (n=27,605, 59% phishing)                       0.128        0.136  0.072  0.108          0.065     0.065   0.081  0.065
+domain activation time unavailable (-1) (n=13,890, 46% phishing)                0.144        0.100  0.053  0.113          0.050     0.051   0.093  0.060
+
+SHORTLIST: best model of each family
+                Family               Model  F1_mean  F1_std  FPR_mean  Mean_Fold_Time_Sec  Interpretability
+            Tree-based       Random Forest   0.9529  0.0030    0.0273              0.3500                 2
+        Neural network                 MLP   0.9387  0.0029    0.0315            131.6727                 1
+  Distance / geometric                k-NN   0.9270  0.0041    0.0380              0.1880                 2
+Linear / probabilistic Logistic Regression   0.9032  0.0033    0.0585              1.5987                 3
+
+Baseline outputs saved to C:\Users\jinxl\Downloads\PhishLite\reports\baseline
+
+[baseline DONE] elapsed: 5600.8s
+
+======================================================================
+STAGE: sentinel
+======================================================================
+Training rows: 52,325 | features: 111
+
+66 of 111 features contain -1 (34.58% of all cells).
+Top 5 features by number of -1:
+qty_dollar_params       47970
+qty_hashtag_params      47970
+qty_underline_params    47970
+qty_slash_params        47970
+qty_asterisk_params     47970
+  running Logistic Regression / keep ...
+  running Logistic Regression / zero_flag ...
+  running Logistic Regression / median ...
+  running k-NN / keep ...
+  running k-NN / zero_flag ...
+  running k-NN / median ...
+  running Random Forest / keep ...
+  running Random Forest / zero_flag ...
+  running Random Forest / median ...
+  running MLP / keep ...
+  running MLP / zero_flag ...
+  running MLP / median ...
+
+SENTINEL TREATMENT (mean over 5 folds)
+              model   setting     F1    FPR    MCC  ROC_AUC  PR_AUC  F1_std
+Logistic Regression      keep 0.9035 0.0587 0.8508   0.9785  0.9595  0.0029
+Logistic Regression zero_flag 0.9033 0.0567 0.8507   0.9800  0.9627  0.0042
+Logistic Regression    median 0.8808 0.0677 0.8161   0.9743  0.9548  0.0029
+               k-NN      keep 0.9261 0.0383 0.8866   0.9793  0.9573  0.0041
+               k-NN zero_flag 0.9241 0.0380 0.8837   0.9782  0.9552  0.0041
+               k-NN    median 0.9116 0.0347 0.8662   0.9734  0.9484  0.0037
+      Random Forest      keep 0.9530 0.0271 0.9276   0.9939  0.9894  0.0026
+      Random Forest zero_flag 0.9530 0.0281 0.9275   0.9938  0.9890  0.0031
+      Random Forest    median 0.9526 0.0278 0.9270   0.9935  0.9886  0.0020
+                MLP      keep 0.9387 0.0325 0.9060   0.9894  0.9816  0.0044
+                MLP zero_flag 0.9399 0.0331 0.9077   0.9897  0.9822  0.0041
+                MLP    median 0.9372 0.0327 0.9036   0.9885  0.9800  0.0036
+
+How to read it: a treatment only 'wins' if its F1 is higher than the others by MORE than the F1_std. Smaller gaps are noise. If they tie, prefer the lowest FPR, then the simplest.
+
+[sentinel DONE] elapsed: 4476.7s
+
+======================================================================
+STAGE: scaling
+======================================================================
+Training rows: 52,325 | features: 111
+  running Logistic Regression / none ...
+  running Logistic Regression / standard (z-score) ...
+  running Logistic Regression / robust (median/IQR) ...
+  running Logistic Regression / quantile -> normal ...
+  running k-NN / none ...
+  running k-NN / standard (z-score) ...
+  running k-NN / robust (median/IQR) ...
+  running k-NN / quantile -> normal ...
+  running MLP / none ...
+  running MLP / standard (z-score) ...
+  running MLP / robust (median/IQR) ...
+  running MLP / quantile -> normal ...
+
+SCALING (sentinel treatment = keep; mean over 5 folds)
+              model             setting     F1    FPR    MCC  ROC_AUC  PR_AUC  F1_std
+Logistic Regression                none 0.8813 0.0846 0.8153   0.9692  0.9363  0.0032
+Logistic Regression  standard (z-score) 0.9035 0.0587 0.8508   0.9785  0.9595  0.0029
+Logistic Regression robust (median/IQR) 0.9039 0.0588 0.8514   0.9785  0.9594  0.0034
+Logistic Regression  quantile -> normal 0.8942 0.0633 0.8365   0.9755  0.9550  0.0031
+               k-NN                none 0.7946 0.1010 0.6868   0.9154  0.8339  0.0074
+               k-NN  standard (z-score) 0.9261 0.0383 0.8866   0.9793  0.9573  0.0041
+               k-NN robust (median/IQR) 0.9187 0.0438 0.8750   0.9767  0.9501  0.0034
+               k-NN  quantile -> normal 0.9186 0.0464 0.8745   0.9765  0.9477  0.0036
+                MLP                none 0.7980 0.0791 0.7302   0.9418  0.8819  0.1000
+                MLP  standard (z-score) 0.9387 0.0325 0.9060   0.9894  0.9816  0.0044
+                MLP robust (median/IQR) 0.9389 0.0296 0.9064   0.9897  0.9819  0.0034
+                MLP  quantile -> normal 0.9364 0.0338 0.9026   0.9894  0.9813  0.0034
+
+[scaling DONE] elapsed: 1234.4s
+
+======================================================================
+STAGE: collinearity
+======================================================================
+Training rows: 52,325 | features: 111
+Constant columns dropped (14): ['qty_slash_domain', 'qty_questionmark_domain', 'qty_equal_domain', 'qty_at_domain', 'qty_and_domain', 'qty_exclamation_domain', 'qty_space_domain', 'qty_tilde_domain', 'qty_comma_domain', 'qty_plus_domain', 'qty_asterisk_domain', 'qty_hashtag_domain', 'qty_dollar_domain', 'qty_percent_domain']
+
+CLUSTERS of near-identical features (we keep ONE per cluster, marked with *):
+  qty_slash_url, qty_dot_directory, qty_hyphen_directory, qty_underline_directory, qty_slash_directory, qty_questionmark_directory*, qty_equal_directory, qty_at_directory, qty_and_directory, qty_exclamation_directory, qty_space_directory, qty_tilde_directory, qty_comma_directory, qty_plus_directory, qty_asterisk_directory, qty_hashtag_directory, qty_dollar_directory, qty_percent_directory, directory_length, qty_dot_file, qty_hyphen_file, qty_underline_file, qty_slash_file, qty_questionmark_file, qty_equal_file, qty_at_file, qty_and_file, qty_exclamation_file, qty_space_file, qty_tilde_file, qty_comma_file, qty_plus_file, qty_asterisk_file, qty_hashtag_file, qty_dollar_file, qty_percent_file, file_length
+  qty_equal_url, qty_dot_params, qty_hyphen_params, qty_underline_params, qty_slash_params, qty_questionmark_params, qty_equal_params, qty_at_params, qty_and_params, qty_exclamation_params, qty_space_params, qty_tilde_params, qty_comma_params, qty_plus_params, qty_asterisk_params*, qty_hashtag_params, qty_dollar_params, qty_percent_params, params_length, tld_present_params, qty_params
+  qty_at_url*, email_in_url
+
+COLLINEARITY DIAGNOSTICS (training data only)
+                  all features  one per cluster
+features          9.700000e+01             40.0
+pairs_rho>=0.9    8.770000e+02              0.0
+features_VIF>10   7.500000e+01              0.0
+max_VIF           1.483200e+04              5.6
+condition_number  2.030736e+18              6.3
+
+Top 10 VIF (all features):
+qty_plus_directory      14832.0
+qty_plus_params          4702.2
+qty_hashtag_params       4387.9
+qty_asterisk_params      2128.6
+qty_dollar_directory     1773.5
+qty_comma_file           1735.9
+qty_tilde_directory      1716.4
+qty_comma_directory      1311.5
+qty_tilde_params         1267.5
+qty_at_file              1247.5
+  running Logistic Regression / all features ...
+  running Logistic Regression / one per cluster ...
+  running k-NN / all features ...
+  running k-NN / one per cluster ...
+  running Random Forest / all features ...
+  running Random Forest / one per cluster ...
+  running MLP / all features ...
+  running MLP / one per cluster ...
+
+DOES IT MATTER? (mean over 5 folds)
+              model         setting     F1    FPR    MCC  ROC_AUC  PR_AUC  F1_std
+Logistic Regression    all features 0.9035 0.0587 0.8508   0.9785  0.9595  0.0029
+Logistic Regression one per cluster 0.8995 0.0626 0.8445   0.9775  0.9576  0.0049
+               k-NN    all features 0.9261 0.0383 0.8866   0.9793  0.9573  0.0041
+               k-NN one per cluster 0.9125 0.0483 0.8653   0.9751  0.9443  0.0036
+      Random Forest    all features 0.9527 0.0280 0.9271   0.9940  0.9896  0.0031
+      Random Forest one per cluster 0.9508 0.0279 0.9243   0.9938  0.9887  0.0039
+                MLP    all features 0.9400 0.0314 0.9079   0.9900  0.9825  0.0029
+                MLP one per cluster 0.9366 0.0310 0.9030   0.9887  0.9800  0.0038
+
+[collinearity DONE] elapsed: 537.2s
+
+======================================================================
+STAGE: reduction
+======================================================================
+Training rows: 52,325 | features: 111
+Starting pool: 40 features (one per cluster). Trying k = [5, 10, 15, 20, 30, 40]
+  fold 1/5 done
+  fold 2/5 done
+  fold 3/5 done
+  fold 4/5 done
+  fold 5/5 done
+
+Logistic Regression: mean F1 by number of features (last column = all 40)
+k                  5       10      15      20      30      40
+method                                                       
+L1 logistic    0.8741  0.8840  0.8944  0.8976  0.8996  0.8995
+RF importance  0.8757  0.8787  0.8810  0.8850  0.8989  0.8995
+mutual info    0.8675  0.8773  0.8806  0.8832  0.8988  0.8995
+
+k-NN: mean F1 by number of features (last column = all 40)
+k                  5       10      15      20      30      40
+method                                                       
+L1 logistic    0.8902  0.8985  0.9171  0.9143  0.9147  0.9125
+RF importance  0.9050  0.9129  0.9120  0.9146  0.9134  0.9125
+mutual info    0.8998  0.9143  0.9139  0.9116  0.9135  0.9125
+
+Random Forest: mean F1 by number of features (last column = all 40)
+k                  5       10      15      20      30      40
+method                                                       
+L1 logistic    0.8971  0.9048  0.9258  0.9429  0.9504  0.9504
+RF importance  0.9153  0.9440  0.9483  0.9501  0.9513  0.9518
+mutual info    0.9242  0.9388  0.9449  0.9497  0.9508  0.9504
+
+MLP: mean F1 by number of features (last column = all 40)
+k                  5       10      15      20      30      40
+method                                                       
+L1 logistic    0.8881  0.8950  0.9183  0.9294  0.9364  0.9378
+RF importance  0.8933  0.9258  0.9313  0.9361  0.9375  0.9381
+mutual info    0.8835  0.9105  0.9259  0.9356  0.9378  0.9383
+
+SMALLEST k within one standard error of the best F1:
+                     L1 logistic  RF importance  mutual info
+Logistic Regression           20             30           30
+MLP                           30             30           30
+Random Forest                 30             20           20
+k-NN                          15             20           10
+
+Shared k = 30
+
+Do the 3 rankings agree? (Spearman correlation between their positions)
+               mutual info  L1 logistic  RF importance
+mutual info           1.00         0.62           0.91
+L1 logistic           0.62         1.00           0.58
+RF importance         0.91         0.58           1.00
+
+Features by number of votes (out of 3):
+votes
+3    26
+2     4
+1     4
+0     6
+Elected without a unanimous vote: qty_mx_servers (2/3 votes), domain_spf (2/3 votes), qty_plus_url (2/3 votes), qty_tilde_url (2/3 votes)
+Left out: domain_google_index, qty_asterisk_url, qty_comma_url, qty_dollar_url, qty_exclamation_url, qty_hashtag_url, qty_space_url, qty_underline_domain, server_client_domain, url_google_index
+
+Saved the 30 elected features -> reports/features_final.txt
+
+[reduction DONE] elapsed: 2696.8s
+
+======================================================================
+STAGE: tuning
+======================================================================
+CONFIGURATION (the same for everyone)
+            setting                                                                                      value
+      features_file                                                                 reports/features_final.txt
+         n_features                                                                                         30
+         train_rows                                                                                      52325
+    sentinel_choice                                                                                       keep
+             scaler                                                                             StandardScaler
+                 cv                                                  StratifiedKFold(5, shuffle=True, seed=42)
+               seed                                                                                         42
+  trials_per_search                                                                                         10
+       scikit-learn                                                                                      1.9.1
+Logistic Regression grid | rows=all | space size=10 | {"C": [0.01, 0.1, 1, 10, 100], "class_weight": [null,...
+        Naive Bayes grid | rows=all | space size=6 | {"var_smoothing": [1e-09, 1e-07, 1e-05, 0.001, 0.01, 0...
+               k-NN grid | rows=all | space size=10 | {"n_neighbors": [3, 5, 9, 15, 21], "weights": ["unifo...
+                SVM random | rows=15000 | space size=32 | {"C": [0.1, 1, 10, 100], "gamma": ["scale", 0.001...
+      Random Forest random | rows=all | space size=216 | {"n_estimators": [100, 200, 300], "max_depth": [nu...
+           LightGBM optuna | rows=all | space size=3456 | {"n_estimators": [100, 200, 400, 800], "learning_...
+                MLP optuna | rows=20000 | space size=32 | {"hidden_layer_sizes": [[64], [128], [64, 32], [1...
+             TabNet optuna | rows=20000 | space size=486 | {"n_d": [8, 16, 32], "n_steps": [3, 4, 5], "gamm...
+
+======================================================================
+Logistic Regression  (grid search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   top 5 settings by F1:
+                 settings     F1  F1_std    FPR    MCC
+ C=100, class_weight=None 0.8992  0.0044 0.0629 0.8440
+  C=10, class_weight=None 0.8991  0.0044 0.0630 0.8438
+   C=1, class_weight=None 0.8990  0.0045 0.0632 0.8436
+ C=0.1, class_weight=None 0.8985  0.0047 0.0648 0.8427
+C=0.01, class_weight=None 0.8952  0.0041 0.0747 0.8372
+   best settings: {'C': 100, 'class_weight': None}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.8990 -> 0.8992  (gain +0.0002, fold std 0.0050)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.30       0.8879  0.1046  0.8259
+0.40       0.8963  0.0832  0.8388
+0.45       0.8992  0.0718  0.8434
+0.50       0.8992  0.0629  0.8440
+0.60       0.8927  0.0465  0.8370
+0.70       0.8702  0.0336  0.8106
+   best F1 at threshold 0.45 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.9026 | FPR = 0.0605 | MCC = 0.8492
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+C:\Users\jinxl\Downloads\PhishLite\b_tuning.py:466: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  axes[0].legend(fontsize=8)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+Naive Bayes  (grid search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   top 5 settings by F1:
+           settings     F1  F1_std    FPR    MCC
+ var_smoothing=0.01 0.5057  0.0045 0.0344 0.4371
+var_smoothing=0.001 0.5030  0.0049 0.0337 0.4358
+var_smoothing=1e-05 0.4995  0.0060 0.0330 0.4339
+var_smoothing=1e-07 0.4977  0.0092 0.0328 0.4326
+var_smoothing=1e-09 0.4969  0.0107 0.0325 0.4324
+   best settings: {'var_smoothing': 0.01}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.4969 -> 0.5057  (gain +0.0088, fold std 0.0051)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.000001   0.7162  0.0580  0.6136
+0.300000   0.5104  0.0347  0.4406
+0.400000   0.5079  0.0346  0.4386
+0.500000   0.5058  0.0344  0.4371
+0.600000   0.5040  0.0342  0.4359
+0.700000   0.5020  0.0338  0.4346
+   best F1 at threshold 1e-06 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.5050 | FPR = 0.0341 | MCC = 0.4368
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+k-NN  (grid search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   top 5 settings by F1:
+                        settings     F1  F1_std    FPR    MCC
+ n_neighbors=9, weights=distance 0.9200  0.0024 0.0457 0.8767
+ n_neighbors=5, weights=distance 0.9188  0.0031 0.0457 0.8749
+ n_neighbors=3, weights=distance 0.9176  0.0019 0.0453 0.8732
+n_neighbors=15, weights=distance 0.9176  0.0026 0.0480 0.8729
+n_neighbors=21, weights=distance 0.9174  0.0025 0.0494 0.8724
+   best settings: {'n_neighbors': 9, 'weights': 'distance'}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.9131 -> 0.9200  (gain +0.0068, fold std 0.0026)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.30       0.9146  0.0766  0.8677
+0.40       0.9205  0.0589  0.8768
+0.45       0.9213  0.0505  0.8783
+0.50       0.9200  0.0457  0.8767
+0.60       0.9130  0.0344  0.8682
+0.70       0.8975  0.0239  0.8498
+   best F1 at threshold 0.45 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.9260 | FPR = 0.0424 | MCC = 0.8859
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+SVM  (random search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   searching on a stratified subsample of 15,000 rows (the winner is re-checked on all rows)
+   top 5 settings by F1:
+                                settings     F1  F1_std    FPR    MCC
+   gamma=scale, class_weight=None, C=100 0.9194  0.0035 0.0444 0.8760
+gamma=0.01, class_weight=balanced, C=100 0.9176  0.0062 0.0618 0.8723
+     gamma=scale, class_weight=None, C=1 0.9138  0.0059 0.0534 0.8668
+   gamma=0.1, class_weight=balanced, C=1 0.9133  0.0073 0.0746 0.8656
+   gamma=0.001, class_weight=None, C=100 0.9041  0.0080 0.0634 0.8514
+   best settings: {'gamma': 'scale', 'class_weight': None, 'C': 100}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.9242 -> 0.9353  (gain +0.0110, fold std 0.0038)
+4/5 decision threshold ...
+   no probabilities (SVM): the threshold stays at the default
+5/5 validation split ...
+   validation: F1 = 0.9389 | FPR = 0.0317 | MCC = 0.9061
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+[learning-curve] k-NN (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+Random Forest  (random search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   top 5 settings by F1:
+                                                                                      settings     F1  F1_std    FPR    MCC
+       n_estimators=200, min_samples_leaf=1, max_features=0.3, max_depth=20, class_weight=None 0.9511  0.0030 0.0282 0.9247
+   n_estimators=300, min_samples_leaf=1, max_features=0.3, max_depth=20, class_weight=balanced 0.9497  0.0034 0.0358 0.9222
+n_estimators=100, min_samples_leaf=2, max_features=sqrt, max_depth=None, class_weight=balanced 0.9458  0.0038 0.0411 0.9161
+  n_estimators=100, min_samples_leaf=2, max_features=log2, max_depth=30, class_weight=balanced 0.9445  0.0038 0.0427 0.9141
+    n_estimators=100, min_samples_leaf=5, max_features=log2, max_depth=None, class_weight=None 0.9421  0.0037 0.0344 0.9107
+   best settings: {'n_estimators': 200, 'min_samples_leaf': 1, 'max_features': 0.3, 'max_depth': 20, 'class_weight': None}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.9511 -> 0.9511  (gain -0.0000, fold std 0.0033)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.3        0.9399  0.0557  0.9074
+0.4        0.9477  0.0402  0.9191
+0.5        0.9510  0.0283  0.9246
+0.6        0.9485  0.0200  0.9216
+0.7        0.9410  0.0125  0.9123
+   best F1 at threshold 0.5 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.9538 | FPR = 0.0271 | MCC = 0.9288
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+[learning-curve] k-NN (tuned) ...
+[learning-curve] SVM (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+LightGBM  (optuna search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   top 5 settings by F1:
+                                                                                                                                               settings     F1  F1_std    FPR    MCC
+n_estimators=800, learning_rate=0.1, num_leaves=127, min_child_samples=10, subsample=0.7, subsample_freq=1, colsample_bytree=0.7, class_weight=balanced 0.9575  0.0026 0.0250 0.9346
+n_estimators=200, learning_rate=0.2, num_leaves=127, min_child_samples=10, subsample=1.0, subsample_freq=1, colsample_bytree=1.0, class_weight=balanced 0.9551  0.0032 0.0274 0.9308
+    n_estimators=100, learning_rate=0.2, num_leaves=63, min_child_samples=10, subsample=0.85, subsample_freq=1, colsample_bytree=0.7, class_weight=None 0.9534  0.0029 0.0260 0.9283
+ n_estimators=400, learning_rate=0.2, num_leaves=15, min_child_samples=20, subsample=0.7, subsample_freq=1, colsample_bytree=0.7, class_weight=balanced 0.9516  0.0032 0.0327 0.9252
+   n_estimators=400, learning_rate=0.03, num_leaves=31, min_child_samples=50, subsample=0.85, subsample_freq=1, colsample_bytree=0.7, class_weight=None 0.9498  0.0041 0.0278 0.9228
+   best settings: {'n_estimators': 800, 'learning_rate': 0.1, 'num_leaves': 127, 'min_child_samples': 10, 'subsample': 0.7, 'subsample_freq': 1, 'colsample_bytree': 0.7, 'class_weight': 'balanced'}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.9462 -> 0.9574  (gain +0.0112, fold std 0.0027)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.30       0.9576  0.0278  0.9346
+0.40       0.9576  0.0266  0.9347
+0.50       0.9574  0.0250  0.9343
+0.60       0.9575  0.0232  0.9346
+0.65       0.9578  0.0222  0.9352
+0.70       0.9576  0.0212  0.9350
+   best F1 at threshold 0.65 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.9613 | FPR = 0.0233 | MCC = 0.9404
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+[learning-curve] k-NN (tuned) ...
+[learning-curve] SVM (tuned) ...
+[learning-curve] Random Forest (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+MLP  (optuna search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+2/5 search ...
+   searching on a stratified subsample of 20,000 rows (the winner is re-checked on all rows)
+   top 5 settings by F1:
+                                                                                                      settings     F1  F1_std    FPR    MCC
+hidden_layer_sizes=(128, 64), alpha=0.0001, learning_rate_init=0.001, early_stopping=True, n_iter_no_change=10 0.9259  0.0053 0.0414 0.8860
+ hidden_layer_sizes=(128, 64), alpha=1e-05, learning_rate_init=0.001, early_stopping=True, n_iter_no_change=10 0.9251  0.0058 0.0432 0.8846
+ hidden_layer_sizes=(128, 64), alpha=0.001, learning_rate_init=0.001, early_stopping=True, n_iter_no_change=10 0.9249  0.0040 0.0365 0.8851
+     hidden_layer_sizes=(128,), alpha=0.01, learning_rate_init=0.003, early_stopping=True, n_iter_no_change=10 0.9238  0.0067 0.0394 0.8831
+  hidden_layer_sizes=(64, 32), alpha=1e-05, learning_rate_init=0.003, early_stopping=True, n_iter_no_change=10 0.9236  0.0046 0.0408 0.8827
+   best settings: {'hidden_layer_sizes': (128, 64), 'alpha': 0.0001, 'learning_rate_init': 0.001, 'early_stopping': True, 'n_iter_no_change': 10}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+   F1 0.9387 -> 0.9372  (gain -0.0015, fold std 0.0036)
+4/5 decision threshold ...
+               F1     FPR     MCC
+threshold                        
+0.3        0.9329  0.0535  0.8961
+0.4        0.9364  0.0429  0.9016
+0.5        0.9372  0.0341  0.9033
+0.6        0.9356  0.0266  0.9019
+0.7        0.9304  0.0206  0.8955
+   best F1 at threshold 0.5 (the default is 0.5)
+5/5 validation split ...
+   validation: F1 = 0.9393 | FPR = 0.0307 | MCC = 0.9068
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+[learning-curve] k-NN (tuned) ...
+[learning-curve] SVM (tuned) ...
+[learning-curve] Random Forest (tuned) ...
+[learning-curve] LightGBM (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+======================================================================
+TabNet  (optuna search, 10 settings at most)
+======================================================================
+1/5 default settings, 5-fold CV ...
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.11836
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 51 with best_epoch = 41 and best_val_0_logloss = 0.1308
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 67 with best_epoch = 57 and best_val_0_logloss = 0.11396
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.12023
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 42 with best_epoch = 32 and best_val_0_logloss = 0.13
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+2/5 search ...
+   searching on a stratified subsample of 20,000 rows (the winner is re-checked on all rows)
+
+Early stopping occurred at epoch 96 with best_epoch = 86 and best_val_0_logloss = 0.12606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 79 with best_epoch = 69 and best_val_0_logloss = 0.14304
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 65 with best_epoch = 55 and best_val_0_logloss = 0.13673
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.17003
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14973
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 68 with best_epoch = 58 and best_val_0_logloss = 0.14958
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 74 with best_epoch = 64 and best_val_0_logloss = 0.14247
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 88 with best_epoch = 78 and best_val_0_logloss = 0.12995
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 82 with best_epoch = 72 and best_val_0_logloss = 0.16369
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Stop training because you reached max_epochs = 100 with best_epoch = 95 and best_val_0_logloss = 0.13941
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 65 with best_epoch = 55 and best_val_0_logloss = 0.13236
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 39 with best_epoch = 29 and best_val_0_logloss = 0.1664
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 29 with best_epoch = 19 and best_val_0_logloss = 0.16962
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 22 with best_epoch = 12 and best_val_0_logloss = 0.20763
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.1513
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 33 with best_epoch = 23 and best_val_0_logloss = 0.19383
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 38 with best_epoch = 28 and best_val_0_logloss = 0.16875
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.1755
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.1776
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 75 with best_epoch = 65 and best_val_0_logloss = 0.13528
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 84 with best_epoch = 74 and best_val_0_logloss = 0.17287
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.18779
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 63 with best_epoch = 53 and best_val_0_logloss = 0.17346
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 81 with best_epoch = 71 and best_val_0_logloss = 0.19032
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 89 with best_epoch = 79 and best_val_0_logloss = 0.18257
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 96 with best_epoch = 86 and best_val_0_logloss = 0.12173
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 51 with best_epoch = 41 and best_val_0_logloss = 0.14623
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 62 with best_epoch = 52 and best_val_0_logloss = 0.13022
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 54 with best_epoch = 44 and best_val_0_logloss = 0.17874
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.15982
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.19198
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 72 with best_epoch = 62 and best_val_0_logloss = 0.166
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 50 with best_epoch = 40 and best_val_0_logloss = 0.16971
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 50 with best_epoch = 40 and best_val_0_logloss = 0.18301
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 37 with best_epoch = 27 and best_val_0_logloss = 0.19078
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.14099
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 32 with best_epoch = 22 and best_val_0_logloss = 0.13891
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 44 with best_epoch = 34 and best_val_0_logloss = 0.12754
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 47 with best_epoch = 37 and best_val_0_logloss = 0.15751
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 23 with best_epoch = 13 and best_val_0_logloss = 0.16316
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.16504
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.14517
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 38 with best_epoch = 28 and best_val_0_logloss = 0.11651
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 21 with best_epoch = 11 and best_val_0_logloss = 0.1685
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 26 with best_epoch = 16 and best_val_0_logloss = 0.14163
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 54 with best_epoch = 44 and best_val_0_logloss = 0.15785
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 93 with best_epoch = 83 and best_val_0_logloss = 0.14198
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 56 with best_epoch = 46 and best_val_0_logloss = 0.14267
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 82 with best_epoch = 72 and best_val_0_logloss = 0.15928
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 62 with best_epoch = 52 and best_val_0_logloss = 0.15026
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+   top 5 settings by F1:
+                                                                    settings     F1  F1_std    FPR    MCC
+  n_d=16, n_steps=3, gamma=1.3, lambda_sparse=0.01, lr=0.01, batch_size=2048 0.9157  0.0069 0.0518 0.8699
+n_d=16, n_steps=3, gamma=1.3, lambda_sparse=0.0001, lr=0.01, batch_size=2048 0.9154  0.0095 0.0539 0.8693
+ n_d=32, n_steps=3, gamma=1.5, lambda_sparse=0.001, lr=0.05, batch_size=1024 0.9148  0.0059 0.0457 0.8690
+   n_d=8, n_steps=3, gamma=1.5, lambda_sparse=0.01, lr=0.02, batch_size=2048 0.9142  0.0112 0.0484 0.8680
+n_d=16, n_steps=4, gamma=1.0, lambda_sparse=0.0001, lr=0.01, batch_size=2048 0.9126  0.0061 0.0486 0.8655
+   best settings: {'n_d': 16, 'n_steps': 3, 'gamma': 1.3, 'lambda_sparse': 0.01, 'lr': 0.01, 'batch_size': 2048}
+3/5 winner re-checked with 5-fold CV on all train rows ...
+
+Early stopping occurred at epoch 83 with best_epoch = 73 and best_val_0_logloss = 0.12612
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 83 with best_epoch = 73 and best_val_0_logloss = 0.1331
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.13097
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 89 with best_epoch = 79 and best_val_0_logloss = 0.11665
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.1386
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+   F1 0.9337 -> 0.9297  (gain -0.0039, fold std 0.0048)
+4/5 decision threshold ...
+
+Early stopping occurred at epoch 83 with best_epoch = 73 and best_val_0_logloss = 0.12612
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 83 with best_epoch = 73 and best_val_0_logloss = 0.1331
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.13097
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 89 with best_epoch = 79 and best_val_0_logloss = 0.11665
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.1386
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+               F1     FPR     MCC
+threshold                        
+0.30       0.9200  0.0708  0.8762
+0.40       0.9267  0.0552  0.8865
+0.50       0.9297  0.0427  0.8915
+0.55       0.9303  0.0376  0.8928
+0.60       0.9294  0.0324  0.8920
+0.70       0.9224  0.0240  0.8837
+   best F1 at threshold 0.55 (the default is 0.5)
+5/5 validation split ...
+
+Early stopping occurred at epoch 80 with best_epoch = 70 and best_val_0_logloss = 0.12016
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+   validation: F1 = 0.9359 | FPR = 0.0406 | MCC = 0.9010
+[bias-variance] Logistic Regression: sweeping C ...
+[bias-variance] Naive Bayes: sweeping var_smoothing ...
+[bias-variance] k-NN: sweeping n_neighbors ...
+[bias-variance] SVM: sweeping C ...
+[bias-variance] Random Forest: sweeping max_depth ...
+[bias-variance] LightGBM: sweeping num_leaves ...
+[bias-variance] MLP: sweeping alpha ...
+[bias-variance] TabNet: sweeping n_d ...
+
+Early stopping occurred at epoch 77 with best_epoch = 67 and best_val_0_logloss = 0.15328
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.15876
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 41 with best_epoch = 31 and best_val_0_logloss = 0.13606
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 59 with best_epoch = 49 and best_val_0_logloss = 0.14912
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 58 with best_epoch = 48 and best_val_0_logloss = 0.16692
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 43 with best_epoch = 33 and best_val_0_logloss = 0.16435
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 55 with best_epoch = 45 and best_val_0_logloss = 0.13846
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 49 with best_epoch = 39 and best_val_0_logloss = 0.14102
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 66 with best_epoch = 56 and best_val_0_logloss = 0.15807
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 31 with best_epoch = 21 and best_val_0_logloss = 0.20196
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 48 with best_epoch = 38 and best_val_0_logloss = 0.15631
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+
+Early stopping occurred at epoch 60 with best_epoch = 50 and best_val_0_logloss = 0.14279
+C:\Users\jinxl\Downloads\PhishLite\.venv\Lib\site-packages\pytorch_tabnet\callbacks.py:172: UserWarning: Best weights from best epoch are automatically used!
+  warnings.warn(wrn_msg)
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\bias_variance_curves.png
+[learning-curve] Logistic Regression (tuned) ...
+[learning-curve] Naive Bayes (tuned) ...
+[learning-curve] k-NN (tuned) ...
+[learning-curve] SVM (tuned) ...
+[learning-curve] Random Forest (tuned) ...
+[learning-curve] LightGBM (tuned) ...
+[learning-curve] MLP (tuned) ...
+Saved -> C:\Users\jinxl\Downloads\PhishLite\reports\tuning\tuned_learning_curves.png
+   saved -> reports\tuning\tuning_results.csv
+
+Done. Results: reports\tuning\tuning_results.csv
+
+[tuning DONE] elapsed: 7898.2s
+
+======================================================================
+STAGE: ensemble
+======================================================================
+SHORTLISTED FAMILY WINNERS (from tuning_results.csv):
+                Family               Model  Tuned_F1  Tuned_FPR  Threshold
+            Tree-based            LightGBM    0.9574     0.0250       0.65
+        Neural network                 MLP    0.9372     0.0341       0.50
+  Distance / geometric                 SVM    0.9353     0.0329       0.45
+Linear / probabilistic Logistic Regression    0.8992     0.0629       0.45
+  computing 5-fold OOF probabilities for LightGBM ...
+  computing 5-fold OOF probabilities for MLP ...
+  computing 5-fold OOF probabilities for SVM ...
+  computing 5-fold OOF probabilities for Logistic Regression ...
+
+DIVERSITY CHECK: Error correlation (lower = more complementary mistakes)
+                     LightGBM     MLP     SVM  Logistic Regression
+LightGBM               1.0000  0.5646  0.5745               0.4295
+MLP                    0.5646  1.0000  0.6894               0.5238
+SVM                    0.5745  0.6894  1.0000               0.4738
+Logistic Regression    0.4295  0.5238  0.4738               1.0000
+
+DIVERSITY CHECK: Cohen's Kappa agreement (lower = higher diversity)
+                     LightGBM     MLP     SVM  Logistic Regression
+LightGBM               1.0000  0.9302  0.9313               0.8703
+MLP                    0.9302  1.0000  0.9424               0.8824
+SVM                    0.9313  0.9424  1.0000               0.8705
+Logistic Regression    0.8703  0.8824  0.8705               1.0000
+Saved diversity plot -> reports\final\diversity_heatmap.png
+
+Evaluating 11 combinations x 4 methods (44 ensembles) on OOF predictions...
+
+TOP 10 ENSEMBLES (saved full table -> reports\final\ensemble_results.csv)
+  Method  Size                                     Models     F1    FPR    MCC  ROC_AUC  PR_AUC
+weighted     3                       LightGBM + MLP + SVM 0.9584 0.0239 0.9359   0.9933  0.9871
+    soft     2                             LightGBM + SVM 0.9582 0.0234 0.9356   0.9922  0.9850
+weighted     2                             LightGBM + SVM 0.9582 0.0242 0.9356   0.9927  0.9858
+stacking     2                             LightGBM + SVM 0.9580 0.0226 0.9355   0.9920  0.9840
+weighted     2                             LightGBM + MLP 0.9580 0.0240 0.9353   0.9936  0.9882
+weighted     4 LightGBM + MLP + SVM + Logistic Regression 0.9580 0.0243 0.9353   0.9935  0.9876
+stacking     2             LightGBM + Logistic Regression 0.9580 0.0236 0.9353   0.9916  0.9841
+weighted     3       LightGBM + MLP + Logistic Regression 0.9580 0.0243 0.9353   0.9935  0.9879
+stacking     2                             LightGBM + MLP 0.9579 0.0228 0.9353   0.9925  0.9861
+stacking     3                       LightGBM + MLP + SVM 0.9579 0.0223 0.9353   0.9927  0.9857
+
+WINNING ENSEMBLE: WEIGHTED (LightGBM + MLP + SVM) | threshold=0.55
+Fitting final base models on full X_train ...
+  learned blend weights: {'LightGBM': 0.6491, 'MLP': 0.216, 'SVM': 0.1349}
+Validation check (winning ensemble): {'F1': 0.9617, 'FPR': np.float64(0.0211), 'MCC': 0.941, 'ROC_AUC': 0.9943, 'PR_AUC': 0.9899}
+Fitting baseline & tuned single models (LightGBM) on full X_train ...
+
+Saved all models + metadata -> C:\Users\jinxl\Downloads\PhishLite\artifacts\models.joblib
+
+[ensemble DONE] elapsed: 686.5s
+
+======================================================================
+STAGE: eval
+======================================================================
+
+======================================================================
+SINGLE LOCKED TEST EVALUATION (n=17,442)
+======================================================================
+              Model  Threshold     F1  F1_CI_low  F1_CI_high    FPR    MCC  ROC_AUC  PR_AUC   Brier
+Baseline (LightGBM)       0.50 0.9448     0.9406      0.9489 0.0294 0.9151   0.9936  0.9886 0.02812
+   Tuned (LightGBM)       0.65 0.9595     0.9557      0.9628 0.0205 0.9378   0.9956  0.9921 0.02444
+Ensemble (weighted)       0.55 0.9595     0.9558      0.9628 0.0215 0.9377   0.9942  0.9891 0.02307
+
+MCNEMAR'S TEST (locked test set):
+                                Comparison  A_only_correct  B_only_correct  Statistic  p_value  Significant_0.05
+   Tuned (LightGBM) vs Baseline (LightGBM)              95             275    86.5973      0.0              True
+   Ensemble (weighted) vs Tuned (LightGBM)              29              28     0.0000      1.0             False
+Ensemble (weighted) vs Baseline (LightGBM)              84             263    91.3084      0.0              True
+Saved calibration & DET plot -> reports\final\calibration_and_det.png
+
+======================================================================
+ROBUSTNESS, STRESS TESTS & ERROR ANALYSIS
+======================================================================
+Feature split: 18 URL-only lexical features | 12 external lookup features
+Training URL-only deployable model (LightGBM) on 18 lexical features ...
+
+ROBUSTNESS & STRESS TEST SUMMARY (locked test set):
+                           Condition     F1    FPR    MCC  ROC_AUC  PR_AUC
+         Full ensemble (30 features) 0.9595 0.0215 0.9377   0.9942  0.9891
+     URL-only LightGBM (18 features) 0.8956 0.0415 0.8422   0.9739  0.9610
+ External lookup failure (25% -> -1) 0.9158 0.0391 0.8714   0.9844  0.9734
+ External lookup failure (50% -> -1) 0.8723 0.0554 0.8064   0.9714  0.9528
+External lookup failure (100% -> -1) 0.7814 0.0900 0.6731   0.9340  0.8944
+    URL drift noise (sigma=0.10 std) 0.9462 0.0352 0.9170   0.9916  0.9849
+    URL drift noise (sigma=0.25 std) 0.8994 0.0815 0.8436   0.9786  0.9638
+
+SUBGROUP SLICE PERFORMANCE (winning ensemble on test set):
+                                  Slice     n  Phish_pct     F1    FPR    FNR
+                URL has no query params 15945      0.297 0.9509 0.0196 0.0515
+                   URL has query params  1497      0.909 0.9891 0.1765 0.0044
+        short URL (below median length)  8169      0.083 0.8686 0.0076 0.1674
+       long URL (median length or more)  9273      0.585 0.9703 0.0486 0.0253
+domain activation time unavailable (-1)  4654      0.465 0.9540 0.0401 0.0458
+
+MISCLASSIFICATION PROFILE: Winning Ensemble (Test)
+  FP_vs_TN: 244 error rows vs 11099 reference rows
+qty_questionmark_directory    1.545
+time_domain_activation       -0.885
+qty_hyphen_url                0.575
+qty_plus_url                  0.480
+time_domain_expiration       -0.433
+qty_dot_domain               -0.322
+qty_asterisk_params           0.312
+length_url                    0.303
+qty_redirects                -0.236
+qty_vowels_domain             0.235
+  FN_vs_TP: 250 error rows vs 5849 reference rows
+qty_asterisk_params          -0.738
+length_url                   -0.730
+qty_questionmark_directory   -0.540
+qty_tld_url                  -0.441
+qty_and_url                  -0.417
+qty_underline_url            -0.378
+qty_dot_url                  -0.369
+qty_at_url                   -0.347
+qty_dot_domain                0.334
+qty_questionmark_url         -0.233
+Updated single bundle -> C:\Users\jinxl\Downloads\PhishLite\artifacts\models.joblib
+
+======================================================================
+INTERPRETABILITY
+======================================================================
+
+GROUPED PERMUTATION IMPORTANCE (test set F1 drop):
+    Group  n_features  F1_drop_mean  F1_drop_std
+      url          11        0.2162       0.0037
+ external          12        0.1603       0.0029
+directory           1        0.0979       0.0014
+   domain           5        0.0551       0.0010
+   params           1        0.0008       0.0003
+Saved grouped importance plot -> reports\final\grouped_permutation_importance.png
+Saved SHAP summary -> reports\final\shap_summary.png
+Saved SHAP waterfall -> reports\final\shap_waterfall_tp_phishing.png
+Saved SHAP waterfall -> reports\final\shap_waterfall_misclassified.png
+
+All final evaluation outputs saved to C:\Users\jinxl\Downloads\PhishLite\reports\final
+
+[eval DONE] elapsed: 655.2s
+
+Pipeline finished in 23793.8s. Log saved -> C:\Users\jinxl\Downloads\PhishLite\reports\run.log

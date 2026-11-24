@@ -1,23 +1,13 @@
 """
-What this EDA does:
-1.  Overview and class balance are kept.
-    The overview also counts features per paper group (URL, domain, directory, file, params, external).
+a_eda.py - descriptive analysis of the whole (deduplicated) dataset.
 
-2.  sentinel_check counts the -1 values per column and checks whether the *_params columns go to -1 together.
-    It also shows the phishing rate among the -1 rows, which tells you whether -1 carries signal.
-    The stacked-bar plot shows the -1 / 0 / positive share per class.
-
-3.  single_feature_auc replaces the Pearson ranking.
-    It gives each feature’s ROC-AUC on its own, flags anything above 0.95 as a possible leakage
-    or source shortcut, and summarizes signal per feature group.
-
-4.  ecdf_plots replaces the histograms, with one ECDF per class for the six best-separating features on a symlog axis.
-    redundancy_analysis gives a clustered Spearman heatmap and a list of redundancy clusters at |r| > 0.95.
-    The cluster list saved to redundancy_clusters.csv is your pruning shortlist for Part B.
+Writes tables and figures to reports/eda. Descriptive only: any decision taken
+from it (e.g. which redundant features to drop) must be recomputed on TRAINING
+data in later stages.
 """
+from __future__ import annotations
 
-
-from pathlib import  Path
+from pathlib import Path
 
 import matplotlib
 matplotlib.use("Agg")
@@ -30,8 +20,8 @@ from sklearn.metrics import roc_auc_score
 
 from load import DEFAULT_LABEL, load_dataset
 
-OUT_DIR = Path("./reports/eda")
-OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+EDA_DIR = Path("./reports/eda")
 
 # Features that need a network lookup or an external service (paper Table 6).
 EXTERNAL_FEATURES = {
@@ -46,10 +36,6 @@ GROUP_COLORS = {
     "file": "#b279a2", "params": "#9d755d", "external": "#e45756", "other": "#999999",
 }
 
-
-#=======================================#
-# 0. Helper
-#=======================================#
 
 def feature_group(name: str) -> str:
     """Map a column name to its paper table (URL part it was computed from)."""
@@ -72,14 +58,13 @@ def numeric_features(df: pd.DataFrame, label: str) -> pd.DataFrame:
     return df.select_dtypes("number").drop(columns=[label], errors="ignore")
 
 
-#=======================================#
+# --------------------------------------------------------------------------- #
 # 1. Overview
-#=======================================#
-
+# --------------------------------------------------------------------------- #
 def overview(df: pd.DataFrame, label: str) -> None:
     section("OVERVIEW")
     print(f"Shape: {df.shape[0]:,} rows x {df.shape[1]} columns")
-    print(f"Memory: {df.memory_usage(deep=True).sum() / 1e6:.4f} MB")
+    print(f"Memory: {df.memory_usage(deep=True).sum() / 1e6:.2f} MB")
     print("\nDtypes:")
     print(df.dtypes.value_counts().to_string())
 
@@ -88,6 +73,9 @@ def overview(df: pd.DataFrame, label: str) -> None:
     print("\nMissing values:", "none" if missing.empty else "")
     if not missing.empty:
         print(pd.DataFrame({"count": missing, "pct": (missing / len(df) * 100).round(2)}).to_string())
+
+    const_cols = [c for c in df.columns if df[c].nunique(dropna=False) <= 1]
+    print(f"\nConstant columns: {const_cols or 'none'}")
 
     # How many features belong to each paper group
     groups = pd.Series({c: feature_group(c) for c in df.columns if c != label})
@@ -114,10 +102,10 @@ def class_balance(df: pd.DataFrame, label: str, out: Path) -> None:
     fig.savefig(out / "class_balance.png", dpi=150)
     plt.close(fig)
 
+
 # --------------------------------------------------------------------------- #
 # 3. Sentinel values (-1): "component absent" or "lookup failed"
 # --------------------------------------------------------------------------- #
-
 def sentinel_check(df: pd.DataFrame, label: str, out: Path, top_n: int = 12) -> None:
     section("SENTINEL VALUES (-1)")
     X = numeric_features(df, label)
@@ -173,10 +161,10 @@ def sentinel_check(df: pd.DataFrame, label: str, out: Path, top_n: int = 12) -> 
     fig.savefig(out / "sentinel_by_class.png", dpi=150)
     plt.close(fig)
 
+
 # --------------------------------------------------------------------------- #
 # 4. Single-feature separation (ROC-AUC) + per-group summary + leakage flag
 # --------------------------------------------------------------------------- #
-
 def single_feature_auc(df: pd.DataFrame, label: str, out: Path,
                        leak_threshold: float = 0.95, top_n: int = 25) -> pd.Series:
     """Oriented AUC per feature: 0.5 = no signal, 1.0 = perfect single-feature separator."""
@@ -228,7 +216,6 @@ def single_feature_auc(df: pd.DataFrame, label: str, out: Path,
 # --------------------------------------------------------------------------- #
 # 5. Redundancy: clustered correlation heatmap + redundancy clusters
 # --------------------------------------------------------------------------- #
-
 def redundancy_analysis(df: pd.DataFrame, label: str, out: Path, cluster_corr: float = 0.95) -> None:
     section("REDUNDANT / HIGHLY CORRELATED FEATURES")
     X = numeric_features(df, label)
@@ -280,7 +267,6 @@ def redundancy_analysis(df: pd.DataFrame, label: str, out: Path, cluster_corr: f
 # --------------------------------------------------------------------------- #
 # 6. Categorical / text columns (expected: none for this dataset)
 # --------------------------------------------------------------------------- #
-
 def categorical_summary(df: pd.DataFrame) -> None:
     cat = df.select_dtypes(exclude="number").columns.tolist()
     section("CATEGORICAL / TEXT FEATURES")
@@ -293,22 +279,15 @@ def categorical_summary(df: pd.DataFrame) -> None:
         print(f"{col}: {df[col].nunique():,} unique | e.g. {example}"[:150])
 
 
-# ===================== #
-# Main                  #
-# ===================== #
-
-def main() -> None:
+def run_eda() -> None:
+    EDA_DIR.mkdir(parents=True, exist_ok=True)
     df = load_dataset()
     label = DEFAULT_LABEL
 
     overview(df, label)
-    class_balance(df, label, OUT_DIR)
-    sentinel_check(df, label, OUT_DIR)
-    auc = single_feature_auc(df, label, OUT_DIR)
-    auc.to_csv(OUT_DIR / "auc.csv")
-    redundancy_analysis(df, label, OUT_DIR)
+    class_balance(df, label, EDA_DIR)
+    sentinel_check(df, label, EDA_DIR)
+    auc = single_feature_auc(df, label, EDA_DIR)
+    redundancy_analysis(df, label, EDA_DIR)
     categorical_summary(df)
-    print(f"\nEDA outputs saved to {OUT_DIR.resolve()}")
-
-if __name__ == "__main__":
-    main()
+    print(f"\nEDA outputs saved to {EDA_DIR.resolve()}")
